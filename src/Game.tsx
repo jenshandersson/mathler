@@ -10,7 +10,15 @@ import {
 
 import { TileBox } from "./TileBox";
 import { TileButton } from "./TileButton";
-import { Tile, Guess, Row, guess, calculateSum, problems } from "./mathler";
+import {
+  Tile,
+  Result,
+  Row,
+  validateGuess,
+  calculateSum,
+  problems,
+  isCorrect,
+} from "./mathler";
 
 const SIX = Array(6).fill(0);
 
@@ -25,7 +33,7 @@ export default function Game() {
   const answer = useMemo(() => problems[day], [day]);
   const sum = useMemo(() => calculateSum(answer), [answer]);
   const [input, setInput] = useState<Row>([]);
-  const [guesses, setGuesses] = useState<Guess[][]>([]);
+  const [guesses, setGuesses] = useState<Result[][]>([]);
 
   const onTilePress = useCallback((content: Tile) => {
     setInput((i) => (i.length >= 6 ? i : [...i, content]));
@@ -38,7 +46,7 @@ export default function Game() {
   }, []);
 
   const onEnter = useCallback(() => {
-    const result = guess(answer, input);
+    const result = validateGuess(answer, input);
     if (result === false) {
       alert("Every guess must equal " + sum);
       return;
@@ -49,9 +57,7 @@ export default function Game() {
   }, [answer, input, sum]);
 
   const completed = useMemo(
-    () =>
-      guesses[guesses.length - 1]?.filter((g) => g.color === "green").length ===
-      6,
+    () => isCorrect(guesses[guesses.length - 1]),
     [guesses]
   );
 
@@ -63,12 +69,12 @@ export default function Game() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ paddingHorizontal: 24 }}>
-        <Text style={{ padding: 4, fontSize: 14 }}>
+        <Text style={{ padding: 4, fontSize: 16 }}>
           Find the hidden calculation that equals {sum}
         </Text>
         {completed && (
           <>
-            <Text style={{ padding: 4, fontSize: 14 }}>
+            <Text style={{ padding: 4, fontSize: 16 }}>
               Congratulations! You made it in {guesses.length} guesses.
             </Text>
             <Button title="New game" onPress={onNewGame} />
@@ -76,26 +82,26 @@ export default function Game() {
         )}
         {failed && (
           <>
-            <Text style={{ padding: 4, fontSize: 14 }}>You failed :(</Text>
+            <Text style={{ padding: 4, fontSize: 16 }}>You failed :(</Text>
             <Button title="New game" onPress={onNewGame} />
           </>
         )}
         <View style={styles.row}>
           {SIX.map((_, i) => (
-            <TileBox key={i} content={input[i]} />
+            <TileBox key={i} tile={input[i]} />
           ))}
         </View>
         {guesses.map((guess, i) => (
           <View key={i} style={styles.row}>
-            {guess.map((g, i) => (
-              <TileBox key={i} {...g} />
+            {guess.map((g, j) => (
+              <TileBox key={j} {...g} />
             ))}
           </View>
         ))}
       </View>
       <View style={{ flex: 1 }} />
-      {tileButtonRows.map((r) => (
-        <View style={styles.keyboardRow}>
+      {tileButtonRows.map((r, i) => (
+        <View key={i} style={styles.keyboardRow}>
           {r.map((t) => (
             <TileButton key={t} tile={t} onPress={onTilePress} />
           ))}

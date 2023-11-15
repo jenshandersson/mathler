@@ -15,21 +15,21 @@ export type Tile =
   | "*";
 export type Row = Tile[];
 export type Color = "green" | "yellow" | "grey";
-export type Guess = { content: Tile; color: Color };
+export type Result = { tile: Tile; color: Color };
 
-export const calculateSum = (tiles: Row) =>
-  // Could install a 3rd party lib for this but didn't want to bloat the app.
-  // eslint-disable-next-line no-eval
-  eval(tiles.join("").replace(/[^0-9*/+\-.\s]/g, ""));
-
-export const guess = (answer: Row, guess: Row) => {
+export const calculateSum = (tiles: Row) => {
   try {
-    const answerSum = calculateSum(answer);
-    const guessSum = calculateSum(guess);
-    if (answerSum !== guessSum) {
-      return false;
-    }
-  } catch {
+    // Could install a 3rd party lib for this but didn't want to bloat the app.
+    // eslint-disable-next-line no-eval
+    return eval(tiles.join("").replace(/[^0-9*/+\-.\s]/g, ""));
+  } catch {}
+  return NaN;
+};
+
+export const validateGuess = (answer: Row, guess: Row) => {
+  const answerSum = calculateSum(answer);
+  const guessSum = calculateSum(guess);
+  if (answerSum !== guessSum) {
     return false;
   }
 
@@ -40,9 +40,13 @@ export const guess = (answer: Row, guess: Row) => {
     } else if (answer.includes(tile)) {
       color = "yellow";
     }
-    return { content: tile, color } as Guess;
+    return { tile, color } as Result;
   });
   return result;
+};
+
+export const isCorrect = (results?: Result[]) => {
+  return results?.filter((g) => g.color === "green").length === 6;
 };
 
 export const problems = [

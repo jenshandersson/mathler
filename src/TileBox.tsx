@@ -8,13 +8,7 @@ const hexColors = {
   grey: "#95A4B9",
 };
 
-export const TileBox = ({
-  content,
-  color,
-}: {
-  content: string;
-  color?: Color;
-}) => (
+export const TileBox = ({ tile, color }: { tile: string; color?: Color }) => (
   <View
     style={{
       flex: 1,
@@ -27,8 +21,6 @@ export const TileBox = ({
       backgroundColor: color && hexColors[color],
     }}
   >
-    <Text style={{ fontSize: 30, color: color ? "#fff" : "#333" }}>
-      {content}
-    </Text>
+    <Text style={{ fontSize: 30, color: color ? "#fff" : "#333" }}>{tile}</Text>
   </View>
 );
